@@ -4,8 +4,8 @@ class Layer:
     def __init__(self, n_inputs: int, n_neurons: int,
                  activation_function: callable,
                  derivative_activation_function: callable):
-        self.weights = np.random.randn(n_inputs, n_neurons) * 0.01
-        self.bias = np.ones((1, n_neurons))
+        self.weights = np.random.randn(n_inputs, n_neurons) * np.sqrt(2. / n_inputs)
+        self.bias = np.zeros((1, n_neurons))
         self.activation_function = activation_function
         self.derivative_activation_function = derivative_activation_function
 
@@ -17,13 +17,17 @@ class Layer:
     def forward(self, X):
         if X.ndim == 1:
             X = X.reshape(1, -1)
-        self.input = X  # store for backprop
+        self.input = X
         self.z = X @ self.weights + self.bias
         self.output = self.activation_function(self.z)
         return self.output
     
     def backward(self, derivative_of_next: np.array, learning_rate: float):
-        derivative_of_this_layer = derivative_of_next * self.derivative_activation_function(self.z)
+        if self.derivative_activation_function is not None:
+            derivative_of_this_layer = derivative_of_next * self.derivative_activation_function(self.z)
+        else:
+            derivative_of_this_layer = derivative_of_next
+        
         derivative_of_this_weights = self.input.T @ derivative_of_this_layer
         derivative_of_this_bias = np.sum(derivative_of_this_layer, axis=0, keepdims=True)
 

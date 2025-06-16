@@ -20,16 +20,12 @@ class NeuralNetwork:
                 output = layer.forward(output)
 
             # Compute derivative of loss (MSE)
-            loss = np.mean((output - y_train) ** 2)
             d_loss = output - y_train
 
             # Backward pass through layers in reverse
             gradient = d_loss
             for layer in reversed(self.layers):
                 gradient = layer.backward(gradient, self.learning_rate)
-
-            if epoch % 100 == 0 or epoch == n_epochs - 1:
-                print(f"Epoch {epoch+1}/{n_epochs} - Loss: {loss:.6f}")
     
     def forward(self, X):
         output = X
@@ -37,5 +33,8 @@ class NeuralNetwork:
             output = layer.forward(output)
         return output
 
-    def infer(data: np.array):
-        pass
+    def infer(self, data: np.array):
+        output = data
+        for layer in self.layers:
+            output = layer.forward(output)
+        return np.argmax(output, axis=1)
